@@ -190,8 +190,6 @@ const questions = [
 
 const c = [206, 119, 955, 105, 473, 945, 501, 966, 466, 199, 441, 885, 622, 123, 955, 805, 477];
 
-
-
 function checkGroup(idx) {
     var res = 0
     for(i = 0; i < 10; i++) {
@@ -199,8 +197,14 @@ function checkGroup(idx) {
             res |= (0x0001) << i;
         }
     }
-    var o = "Es sind " + checkCorrect(c[idx], res) + " von 10 Antworten richtig.";
+    var correct = checkCorrect(c[idx], res)
+    var o = "Es sind " + correct + " von 10 Antworten richtig.";
     document.getElementById("out_" + idx).innerHTML = o;
+    if(correct == 10) {
+        document.getElementById("cap_" + idx).style.color = 'green';
+    } else {
+        document.getElementById("cap_" + idx).style.color = 'black';
+    }
     
 }
 
@@ -214,13 +218,13 @@ function checkCorrect(guess, correct) {
 
 document.addEventListener("DOMContentLoaded", function () {
     fillQuestions();
-    for(idx = 0; idx < 8; idx++) {
+    for(idx = 0; idx < 17; idx++) {
         toggle("frm_" + idx)
     }
 });
 
 function fillQuestions() {
-    for (grp = 0; grp < 8; grp++) {
+    for (grp = 0; grp < 17; grp++) {
         for (idx = 0; idx < 10; idx++) {
             document.getElementById("lbl_" + grp + "_" + idx).innerHTML = questions[grp][idx];
         }
