@@ -298,6 +298,14 @@ function fillQuestions() {
         }
         document.getElementById("cap_" + i).style.color = "green";
         toggleGroup(i, true);
+      } else {
+        for (let j = 0; j < 10; j++) {
+              document.getElementById("cb_" + i + "_" + j).checked = false;
+          }
+          document.getElementById("cap_" + i).style.color = "black";
+          document.getElementById("out_" + i).innerHTML = "";
+          toggleGroup(i, false);
+          
       }
     }
   }
