@@ -15,7 +15,7 @@ const questions = [
 "Zürich ist die brunnenreichste Stadt der Welt.",
 "Die Burgruine Hals liegt im Karlsbader Stadtteil Hals.",
 "Wales beherbergt die meisten Schlösser und Burgen pro Quadratkilometer weltweit.",
-"Hauptstadt der Slowakei ist Bratilava.",
+"Hauptstadt der Slowakei ist Bratislava.",
 "Normalerweise hat ein erwachsener Mensch 32 Zähne.",
 "In dem Wappen von Puntland sieht man zwei Elefanten.",
 "Der Geitlandsjökull ist ein Seitengletscher des großen Gletscherschildes Langjökull im Süden von Island.",
@@ -96,7 +96,7 @@ const questions = [
 "Der Ural trennt Europa und Asien.",
 "Sir Francis Drake hat die Kartoffel nach Europa gebracht.",
 "Fräulein Prüsselius ist die Lehrerin von Tommy und Annika.",
-"Die Corythucha kommt nur einmal in Deutschland vor."
+"Der erste 0-Euro-Schein Österreichs wurde 2002 vom Alpenzoo Innsbruck herausgegeben."
 ],
 ["Doris Dörrie führte die Regie bei dem Film \"Die Friseuse\".",
 "Eine Giraffe kann mit ihrer über einen Meter langen Zunge ihr Ohr putzen.",
@@ -190,8 +190,12 @@ const questions = [
 
 const c = [206, 119, 955, 105, 473, 945, 501, 966, 466, 199, 441, 885, 622, 123, 955, 805, 477];
 
+var disabledBlocks = "0000000000000000";
+
+
+
 function checkGroup(idx) {
-    var res = 0
+    let res = 0
     for(i = 0; i < 10; i++) {
         if(document.getElementById("cb_" + idx + "_" + i).checked) {
             res |= (0x0001) << i;
@@ -202,15 +206,48 @@ function checkGroup(idx) {
     document.getElementById("out_" + idx).innerHTML = o;
     if(correct == 10) {
         document.getElementById("cap_" + idx).style.color = 'green';
+        disabledBlocks = setCharAt(disabledBlocks, idx, '1');
+        toggleGroup(idx, true);
+        setCookie();
+        alert("Bravo - du hast diese Fragengruppe richtig beantwortet");
+        checkFinish();
+        
     } else {
         document.getElementById("cap_" + idx).style.color = 'black';
     }
     
 }
 
+function checkFinish() {
+    console.log("finish");
+    console.log(disabledBlocks);
+    if(disabledBlocks == "11000100001000001") {
+        window.open("./finish.html");
+    }
+}
+
+function setCharAt(str, i, ch) {
+    return str.substring(0, i) + ch + str.substring(i+1);
+}
+
+function toggleGroup(idx, b) {
+    for(i = 0; i < 10; i++) {
+        document.getElementById("cb_" + idx + "_" + i).disabled = b;
+    }
+    document.getElementById("btn_" + idx).disabled = b;
+}
+
+
+function setCookie() {
+    const d = new Date();
+    d.setTime(d.getTime() + (40 * 24 * 3600 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = "baconQuiz=" + disabledBlocks + ";" + expires + ";path=/";
+}
+
 function checkCorrect(guess, correct) {
     var cc = 0;
-    for(i = 0; i < 10; i++) {
+    for(let i = 0; i < 10; i++) {
         if(((guess >> i) & 0x1) == ((correct >> i) & 0x1)) cc++;
     }
     return cc;
@@ -218,7 +255,7 @@ function checkCorrect(guess, correct) {
 
 document.addEventListener("DOMContentLoaded", function () {
     fillQuestions();
-    for(idx = 0; idx < 17; idx++) {
+    for(let idx = 0; idx < 17; idx++) {
         toggle("frm_" + idx)
     }
 });
@@ -227,6 +264,23 @@ function fillQuestions() {
     for (grp = 0; grp < 17; grp++) {
         for (idx = 0; idx < 10; idx++) {
             document.getElementById("lbl_" + grp + "_" + idx).innerHTML = questions[grp][idx];
+        }
+    }
+    // check cookie
+    
+    let co = document.cookie;
+    disabledBlocks = co.split("=")[1];
+    console.log(disabledBlocks);
+    
+    for(let i = 0; i < 17; i++) {
+        if(disabledBlocks.charAt(i) == '1') {
+            for(let j = 0; j < 10; j++) {
+                if(((c[i] >> j) & 0x1) == 1) {
+                    document.getElementById("cb_" + i + "_" + j).checked = true;
+                }
+            }
+            document.getElementById("cap_" + i).style.color = 'green';
+            toggleGroup(i, true)
         }
     }
 }
@@ -238,4 +292,10 @@ function toggle(id) {
     } else {
       e.style.display = 'block';
     }
+  }
+
+  function reset() {
+      disabledBlocks="00000000000000000";
+      setCookie();
+      fillQuestions();
   }
